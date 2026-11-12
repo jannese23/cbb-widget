@@ -84,6 +84,12 @@ like Calendar events (coloured bar on the left).
 
 1. **Today** (header shows today's date): every game today that qualifies (see "What counts").
    Live first, then upcoming by tip time, then finals.
+   **When more qualify than fit** (busy Saturdays), choose which to keep by importance first
+   (decided by Jackson): UConn, then ranked vs ranked (lower rank sum first), then prominent
+   matchups, then upsets in progress (an unranked or much lower-ranked team leading in the second
+   half), then ranked vs unranked (higher-ranked team first). The kept games are then displayed in
+   the live / upcoming / final order above. Today never takes the last two rows of the column:
+   Latest always keeps at least two rows when it has results.
 2. **Latest:** fills the remaining space with ranked results from the previous 2 days. Order: upsets,
    then ranked vs ranked, then prominent matchups, then everything else. Blowouts of unranked teams by
    ranked teams go last.
