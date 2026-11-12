@@ -18,7 +18,7 @@ import Testing
 
 @Test func busyDayKeepsImportantGamesAndTwoLatest() {
     let b = BoardBuilder.build(busyInputs(), now: et("2026-12-05 11:00"))
-    #expect(b.today.count == 4 && b.latest.count == 2)
+    #expect(b.today.count == 3 && b.latest.count == 2)
     #expect(b.today.contains { BigGames.isBothRanked($0) })
     #expect(b.today.last.map(BigGames.isBothRanked) == true)            // shown in tip order: 9 PM last
 }

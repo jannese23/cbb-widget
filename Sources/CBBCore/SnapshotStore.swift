@@ -40,27 +40,33 @@ public final class SnapshotStore: @unchecked Sendable {
         now.timeIntervalSince(s.fetchedAt) > staleAfter
     }
 
-    public static func logoURL(_ teamID: String) -> URL {
-        URL(string: "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/\(teamID).png")!
+    /// ESPN's logo for a dark background (`500-dark`) or a light one (`500`).
+    public static func logoURL(_ teamID: String, dark: Bool = true) -> URL {
+        URL(string: "https://a.espncdn.com/i/teamlogos/ncaa/\(dark ? "500-dark" : "500")/\(teamID).png")!
     }
 
-    public func logo(_ teamID: String) -> Data? {
-        try? Data(contentsOf: logosURL.appending(path: "\(teamID).png"))
+    public func logo(_ teamID: String, dark: Bool = true) -> Data? {
+        try? Data(contentsOf: logoFile(teamID, dark: dark))
+    }
+
+    private func logoFile(_ teamID: String, dark: Bool) -> URL {
+        logosURL.appending(path: dark ? "\(teamID).png" : "\(teamID)-light.png")
     }
 
     /// Downloads and caches any logos not already on disk. Failures are ignored: the view falls back
     /// to the team abbreviation.
     public func cacheLogos(for teamIDs: Set<String>, session: URLSession) async {
         try? FileManager.default.createDirectory(at: logosURL, withIntermediateDirectories: true)
-        let missing = teamIDs.filter { logo($0) == nil }
+        let missing = teamIDs.flatMap { id in [true, false].map { (id, $0) } }.filter { logo($0, dark: $1) == nil }
         await withTaskGroup(of: Void.self) { group in
-            for id in missing {
-                group.addTask { [logosURL] in
-                    guard let (data, response) = try? await session.data(from: Self.logoURL(id)),
+            for (id, dark) in missing {
+                let file = logoFile(id, dark: dark)
+                group.addTask {
+                    guard let (data, response) = try? await session.data(from: Self.logoURL(id, dark: dark)),
                           (response as? HTTPURLResponse)?.statusCode == 200,
                           let png = Self.resized(data, to: Self.logoPixels)
                     else { return }
-                    try? png.write(to: logosURL.appending(path: "\(id).png"), options: .atomic)
+                    try? png.write(to: file, options: .atomic)
                 }
             }
         }

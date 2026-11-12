@@ -50,6 +50,8 @@ import Testing
         let data = try #require(store.logo("41"))
         let image = try #require(NSBitmapImageRep(data: data))
         #expect(image.pixelsWide == 64 && image.pixelsHigh == 64)
+        #expect(store.logo("41", dark: false) != nil)          // light-background variant cached too
+        #expect(SnapshotStore.logoURL("41", dark: false).absoluteString == "https://a.espncdn.com/i/teamlogos/ncaa/500/41.png")
     }
 }
 

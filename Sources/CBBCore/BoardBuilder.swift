@@ -45,7 +45,7 @@ public struct Board: Codable, Sendable {
 
 /// How many game rows each part of the extra-large widget holds.
 public enum Slots {
-    public static let rightColumn = 6
+    public static let rightColumn = 5
     public static let latestMinimum = 2
     public static let leftComingUp = 3
 }
