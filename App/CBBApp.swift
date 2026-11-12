@@ -68,12 +68,36 @@ struct ContentView: View {
     }
 }
 
+/// Clicking a widget doesn't open its link: macOS launches this app and hands it the URL.
+/// Pass the link straight to the browser, and quit again if that's the only reason we launched.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var finishedLaunching = false
+    private var launchedForLink = false
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        // A link that arrives before launch finishes is the reason we were launched.
+        if !finishedLaunching { launchedForLink = true }
+        for url in urls where url.scheme == "https" || url.scheme == "http" {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        finishedLaunching = true
+        if launchedForLink { NSApp.terminate(nil) }
+    }
+}
+
 @main
 struct CBBApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup("College Basketball") {
             ContentView()
         }
         .windowResizability(.contentSize)
+        // Links from the widget are forwarded by AppDelegate; they must never open a window.
+        .handlesExternalEvents(matching: [])
     }
 }
