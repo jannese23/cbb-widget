@@ -73,3 +73,10 @@ import Testing
     let b = BoardBuilder.build(inputs(menScoreboard: [blowout, plain, rr, upset]), now: et("2026-11-12 10:00"))
     #expect(b.latest == [upset, rr, plain, blowout])
 }
+
+@Test func teamIDsCoverEveryShownTeamPlusUConn() {
+    let b = BoardBuilder.build(inputsFromFixtures(), now: et("2026-11-12 15:00"))
+    #expect(b.teamIDs.contains("41") && b.teamIDs.contains("194"))
+    #expect(b.allGames.allSatisfy { b.teamIDs.contains($0.home.team.id) && b.teamIDs.contains($0.away.team.id) })
+    #expect(BoardBuilder.build(inputs(), now: et("2026-11-12 15:00")).teamIDs == ["41"])
+}

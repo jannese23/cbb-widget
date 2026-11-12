@@ -102,3 +102,8 @@ func tinyPNG() -> Data {
                                colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
     return rep.representation(using: .png, properties: [:])!
 }
+
+@Test func defaultDirectoryIsInCaches() {
+    #expect(SnapshotStore.defaultDirectory.lastPathComponent == "CBB")
+    #expect(SnapshotStore.defaultDirectory.path.contains("/Caches/"))
+}

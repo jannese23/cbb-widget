@@ -22,6 +22,11 @@ public final class SnapshotStore: @unchecked Sendable {
     private var snapshotURL: URL { directory.appending(path: "snapshot.json") }
     private var logosURL: URL { directory.appending(path: "logos") }
 
+    /// `<Caches>/CBB` in the calling process's own (sandboxed) container.
+    public static var defaultDirectory: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appending(path: "CBB")
+    }
+
     public init(directory: URL) {
         self.directory = directory
     }

@@ -41,6 +41,11 @@ public struct Board: Codable, Sendable {
     public var allGames: [Game] {
         [uconn.live, uconn.next, uconn.last, women].compactMap { $0 } + comingUp + today + latest
     }
+
+    /// Every team whose logo the board can show, UConn always included.
+    public var teamIDs: Set<String> {
+        Set(allGames.flatMap { [$0.home.team.id, $0.away.team.id] } + [BigGames.uconnID])
+    }
 }
 
 /// How many game rows each part of the extra-large widget holds.

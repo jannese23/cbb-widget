@@ -1,0 +1,58 @@
+# XcodeGen spec: `xcodegen generate` writes CBB.xcodeproj (git-ignored).
+name: CBB
+options:
+  bundleIdPrefix: com.jannese
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: A4U8TCFTCZ
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+packages:
+  CBB:
+    path: .
+targets:
+  CBB:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: CBB
+        product: CBBCore
+      - package: CBB
+        product: CBBUI
+      - target: CBBWidget
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jannese.cbb
+        PRODUCT_NAME: CBB
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: College Basketball
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.sports
+        CODE_SIGN_ENTITLEMENTS: App/CBB.entitlements
+  CBBWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Widget
+        excludes: [Info.plist]
+    dependencies:
+      - package: CBB
+        product: CBBCore
+      - package: CBB
+        product: CBBUI
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jannese.cbb.widget
+        PRODUCT_NAME: CBBWidget
+        INFOPLIST_FILE: Widget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Widget/CBBWidget.entitlements
+        SKIP_INSTALL: YES

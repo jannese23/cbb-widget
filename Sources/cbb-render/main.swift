@@ -51,8 +51,7 @@ let snapshot = Snapshot(inputs: inputs, fetchedAt: fetchedAt)
 let board = BoardBuilder.build(inputs, now: now)
 
 let store = SnapshotStore(directory: FileManager.default.temporaryDirectory.appending(path: "cbb-render-cache"))
-await store.cacheLogos(for: Set(board.allGames.flatMap { [$0.home.team.id, $0.away.team.id] } + [BigGames.uconnID]),
-                       session: .shared)
+await store.cacheLogos(for: board.teamIDs, session: .shared)
 
 let light = flag("--light")
 let content: AnyView = flag("--placeholder")
