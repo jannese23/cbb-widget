@@ -4,19 +4,25 @@ public enum ESPNDecodingError: Error {
     case unexpectedShape
 }
 
-/// Turns ESPN site-API responses into `Game`s. Lenient per event: one malformed event is skipped,
-/// only a response whose top level isn't recognisable throws.
+/// Turns ESPN site-API responses into `Game`s. Lenient per event: one malformed event is skipped.
+/// A response that isn't recognisable (no `events` list, or events none of which decode) throws,
+/// so a changed API never overwrites the last good snapshot with an empty one.
 public enum ESPNDecoder {
     public static func scoreboard(_ data: Data, league: League) throws -> [Game] {
-        let events = try topLevel(data)["events"] as? [[String: Any]] ?? []
-        return events.compactMap { game(from: $0, league: league) }
+        try games(in: topLevel(data), league: league)
     }
 
     public static func schedule(_ data: Data, league: League) throws -> (record: String?, games: [Game]) {
         let root = try topLevel(data)
         let record = (root["team"] as? [String: Any])?["recordSummary"] as? String
-        let events = root["events"] as? [[String: Any]] ?? []
-        return (record, events.compactMap { game(from: $0, league: league) })
+        return (record, try games(in: root, league: league))
+    }
+
+    private static func games(in root: [String: Any], league: League) throws -> [Game] {
+        guard let events = root["events"] as? [[String: Any]] else { throw ESPNDecodingError.unexpectedShape }
+        let games = events.compactMap { game(from: $0, league: league) }
+        if games.isEmpty && !events.isEmpty { throw ESPNDecodingError.unexpectedShape }
+        return games
     }
 
     public static func parseDate(_ s: String) -> Date? {

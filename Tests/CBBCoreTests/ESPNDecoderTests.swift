@@ -48,8 +48,21 @@ import Testing
     #expect(games.contains { $0.venue == nil && $0.away.rank == nil && $0.away.score == nil })
 }
 
-@Test func skipsMalformedEventInsteadOfFailingTheDay() throws {
-    let json = #"{"events":[{"id":"1"},{"id":"2","date":"2026-11-13T02:00Z","competitions":[]}]}"#
-    #expect(try ESPNDecoder.scoreboard(Data(json.utf8), league: .men).isEmpty)
+@Test func skipsOneMalformedEventAmongGoodOnes() throws {
+    var root = try JSONSerialization.jsonObject(with: fixture("men_scoreboard_live")) as! [String: Any]
+    root["events"] = (root["events"] as! [Any]) + [["id": "bad"]]
+    let games = try ESPNDecoder.scoreboard(JSONSerialization.data(withJSONObject: root), league: .men)
+    #expect(games.count == 3)
+}
+
+@Test func emptyDayIsFine() throws {
+    #expect(try ESPNDecoder.scoreboard(Data(#"{"events":[]}"#.utf8), league: .men).isEmpty)
+}
+
+@Test func unrecognisableResponsesThrowSoTheCacheSurvives() {
     #expect(throws: (any Error).self) { try ESPNDecoder.scoreboard(Data("[]".utf8), league: .men) }
+    #expect(throws: (any Error).self) { try ESPNDecoder.scoreboard(Data(#"{"games":[]}"#.utf8), league: .men) }
+    let allBad = #"{"events":[{"id":"1"},{"id":"2","date":"2026-11-13T02:00Z","competitions":[]}]}"#
+    #expect(throws: (any Error).self) { try ESPNDecoder.scoreboard(Data(allBad.utf8), league: .men) }
+    #expect(throws: (any Error).self) { try ESPNDecoder.schedule(Data(#"{"team":{}}"#.utf8), league: .men) }
 }

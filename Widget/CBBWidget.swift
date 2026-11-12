@@ -33,8 +33,8 @@ struct Provider: TimelineProvider {
             let snapshot = await fetch(now: now) ?? store.load()
             let isLive = snapshot.map { BoardBuilder.build($0.inputs, now: now).allGames.contains { $0.state == .live } } ?? false
             let next = now.addingTimeInterval(isLive ? Self.liveRefresh : Self.refresh)
-            // Extra entries flip ticket states (soon/open/closed) on time, between fetches.
-            let dates = [now] + TicketSchedule.boundaries(after: now, within: next.timeIntervalSince(now))
+            // Extra entries flip ticket states (soon/open/closed) on time even if the reload is throttled.
+            let dates = TimelinePlan.entryDates(now: now)
             completion(Timeline(entries: dates.map { BoardEntry(date: $0, snapshot: snapshot) }, policy: .after(next)))
         }
     }
