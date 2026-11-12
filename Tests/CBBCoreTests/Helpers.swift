@@ -14,3 +14,16 @@ func et(_ s: String) -> Date {
     f.dateFormat = "yyyy-MM-dd HH:mm"
     return f.date(from: s)!
 }
+
+func game(_ homeID: String, _ homeRank: Int?, _ homeScore: Int?,
+          _ awayID: String, _ awayRank: Int?, _ awayScore: Int?,
+          _ state: GameState, period: Int = 2, league: League = .men,
+          start: Date = et("2026-11-12 19:00")) -> Game {
+    Game(
+        id: "\(homeID)-\(awayID)-\(start.timeIntervalSince1970)", league: league, start: start, state: state,
+        period: period, statusText: state == .final ? "Final" : "", venue: nil,
+        home: Competitor(team: Team(id: homeID, abbreviation: homeID, location: homeID), rank: homeRank, score: homeScore, isHome: true),
+        away: Competitor(team: Team(id: awayID, abbreviation: awayID, location: awayID), rank: awayRank, score: awayScore, isHome: false),
+        link: nil
+    )
+}
